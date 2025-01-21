@@ -20,7 +20,7 @@ const ProfilePage: React.FC = (): React.JSX.Element => {
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { data } = useSession();
+  const { data, update } = useSession();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -77,6 +77,8 @@ const ProfilePage: React.FC = (): React.JSX.Element => {
         toast.info("Please sign out and sign in again to see changes!", {
           theme: "dark",
         });
+
+        await update({ ...content }); // TODO: Data not updating
       }
     } catch (error) {
       console.log(error);
