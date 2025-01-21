@@ -1,0 +1,50 @@
+datasource db {
+  // url      = env("DATABASE_URL")
+  url      = "postgresql://root:1234@localhost:5432/codeprompthub"
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         String     @id @default(cuid())
+  email      String     @unique
+  name       String
+  password   String
+  experience Int        @default(0)
+  exercises  Exercise[]
+  user_image UserImage?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([email])
+}
+
+model UserImage {
+  id               String   @id @default(cuid())
+  user_id          String   @unique
+  cloudinary_image String
+  cloudinary_id    String
+  user             User     @relation(fields: [user_id], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([user_id, cloudinary_id])
+}
+
+model Exercise {
+  id               String   @id @default(cuid())
+  user_id          String
+  difficulty       Int // 1-5
+  code             String
+  user_explanation String?
+  score            Int?
+  ai_review        String?
+  user             User     @relation(fields: [user_id], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([user_id, score])
+}
