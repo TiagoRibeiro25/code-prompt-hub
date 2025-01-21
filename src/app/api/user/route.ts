@@ -2,6 +2,7 @@ import { authOptions } from "@/lib/authOptions";
 import cloudinary from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import validateSchema from "@/lib/validateSchema";
+import bcrypt from "bcrypt";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -110,7 +111,8 @@ export async function PUT(req: NextRequest) {
     }
 
     if (requestBody.password) {
-      contentToUpdate.password = requestBody.password;
+      const hashedPassword = await bcrypt.hash(requestBody.password, 10);
+      contentToUpdate.password = hashedPassword;
     }
 
     // Check if the content has any data to update
