@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
@@ -20,7 +20,7 @@ const ProfilePage: React.FC = (): React.JSX.Element => {
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { data, update } = useSession();
+  const { data } = useSession();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -74,11 +74,13 @@ const ProfilePage: React.FC = (): React.JSX.Element => {
         toast.error(responseData.error, { theme: "dark" });
       } else {
         toast.success("Account updated successfully!", { theme: "dark" });
-        toast.info("Please sign out and sign in again to see changes!", {
+        toast.info("Please Login again to see the changes!", {
           theme: "dark",
         });
 
-        await update({ ...content }); // TODO: Data not updating
+        setTimeout(() => {
+          signOut({ callbackUrl: "/auth/login" });
+        }, 3000);
       }
     } catch (error) {
       console.log(error);
