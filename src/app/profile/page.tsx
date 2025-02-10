@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
@@ -71,16 +71,14 @@ const ProfilePage: React.FC = (): React.JSX.Element => {
       const responseData = await response.json();
 
       if (!response.ok) {
-        toast.error(responseData.error, { theme: "dark" });
+        toast.error(responseData.message || responseData.error, {
+          theme: "dark",
+        });
       } else {
         toast.success("Account updated successfully!", { theme: "dark" });
         toast.info("Please Login again to see the changes!", {
           theme: "dark",
         });
-
-        setTimeout(() => {
-          signOut({ callbackUrl: "/auth/login" });
-        }, 3000);
       }
     } catch (error) {
       console.log(error);
