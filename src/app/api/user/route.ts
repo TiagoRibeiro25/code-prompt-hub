@@ -116,7 +116,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Check if the content has any data to update
-    if (Object.keys(contentToUpdate).length === 0) {
+    if (Object.keys(contentToUpdate).length === 0 && !requestBody.image) {
       return NextResponse.json(
         { message: "No content to update" },
         { status: 400 }
