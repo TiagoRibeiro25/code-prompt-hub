@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import React, { PropsWithChildren } from "react";
 import { ToastContainer } from "react-toastify";
+import Footer from "./Footer";
 import TopNavbar from "./TopNavbar";
 
 const HtmlContent: React.FC<PropsWithChildren> = ({
@@ -16,6 +17,8 @@ const HtmlContent: React.FC<PropsWithChildren> = ({
         </header>
 
         <main>{children}</main>
+
+        <Footer />
         <ToastContainer />
       </body>
     </SessionProvider>
