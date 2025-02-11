@@ -1,8 +1,14 @@
+import { prisma } from "@/lib/prisma";
 import React from "react";
 import { Fade } from "react-awesome-reveal";
 
-const Testimonials: React.FC = (): React.JSX.Element => {
-  const testimonials = [
+type Testimonial = {
+  quote: string;
+  author: string;
+};
+
+const Testimonials: React.FC = async (): Promise<React.JSX.Element> => {
+  const testimonialsDummyData: Testimonial[] = [
     {
       quote:
         "This platform helped me understand complex code like never before!",
@@ -17,6 +23,34 @@ const Testimonials: React.FC = (): React.JSX.Element => {
       author: "Charlie",
     },
   ];
+
+  let data = testimonialsDummyData;
+
+  const testimonials = await prisma.user.findMany({
+    where: {
+      review: {
+        not: null,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      review: true,
+    },
+    take: 3,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (testimonials.length === 3) {
+    data = testimonials.map((testimonial) => {
+      return {
+        quote: testimonial.review,
+        author: testimonial.name,
+      } as Testimonial;
+    });
+  }
 
   return (
     <>
@@ -39,7 +73,7 @@ const Testimonials: React.FC = (): React.JSX.Element => {
         triggerOnce
         className="mt-12 flex flex-col md:flex-row gap-8"
       >
-        {testimonials.map((testimonial, index) => (
+        {data.map((testimonial, index) => (
           <div
             key={index}
             className="bg-gray-800 p-6 rounded-lg shadow-lg w-full flex sm:flex-row flex-col items-center gap-8"
