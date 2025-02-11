@@ -92,6 +92,14 @@ const TopNavbar: React.FC = (): React.JSX.Element => {
                     </li>
                     <li>
                       <Link
+                        href="/leaderboard"
+                        className="block px-4 py-2 text-sm text-white hover:text-red-500"
+                      >
+                        Leaderboard
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
                         href="/profile"
                         className="block px-4 py-2 text-sm text-white hover:text-red-500"
                       >
