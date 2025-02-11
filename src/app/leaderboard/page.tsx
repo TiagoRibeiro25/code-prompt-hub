@@ -1,12 +1,12 @@
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
-import { getServerSession, Session } from "next-auth";
+import { getServerSession } from "next-auth";
 import Image from "next/image";
 import React from "react";
 import { FaRegUserCircle } from "react-icons/fa";
 
 const LeaderboardPage: React.FC = async (): Promise<React.JSX.Element> => {
-  const session = (await getServerSession(authOptions)) as Session;
+  const session = await getServerSession(authOptions);
 
   // Fetch all users and order them by experience
   const users = await prisma.user.findMany({
@@ -32,42 +32,45 @@ const LeaderboardPage: React.FC = async (): Promise<React.JSX.Element> => {
     };
   });
 
-  const loggedUser = await prisma.user.findUnique({
-    where: { email: session.user?.email as string },
-    select: { id: true },
-  });
-
-  // Check if the logged user is in the top 10
-  const loggedUserPosition = leaderboard.findIndex(
-    (user) => user.id === loggedUser?.id
-  );
-
-  // If he's not in the top 10, get his position and add him to the leaderboard
-  if (loggedUserPosition === -1) {
-    const user = await prisma.user.findFirst({
+  let loggedUser: { id: string } | null = null;
+  if (session) {
+    loggedUser = await prisma.user.findUnique({
       where: { email: session.user?.email as string },
-      select: {
-        id: true,
-        name: true,
-        experience: true,
-        user_image: true,
-      },
+      select: { id: true },
     });
 
-    if (!user) {
-      // This should never happen
-      throw new Error("User not found");
+    // Check if the logged user is in the top 10
+    const loggedUserPosition = leaderboard.findIndex(
+      (user) => user.id === loggedUser?.id
+    );
+
+    // If he's not in the top 10, get his position and add him to the leaderboard
+    if (loggedUserPosition === -1) {
+      const user = await prisma.user.findFirst({
+        where: { email: session.user?.email as string },
+        select: {
+          id: true,
+          name: true,
+          experience: true,
+          user_image: true,
+        },
+      });
+
+      if (!user) {
+        // This should never happen
+        throw new Error("User not found");
+      }
+
+      const userPosition = users.findIndex((u) => u.id === user.id) + 1;
+
+      leaderboard.push({
+        id: user.id,
+        name: user.name,
+        experience: user.experience,
+        user_image: user.user_image,
+        position: userPosition,
+      });
     }
-
-    const userPosition = users.findIndex((u) => u.id === user.id) + 1;
-
-    leaderboard.push({
-      id: user.id,
-      name: user.name,
-      experience: user.experience,
-      user_image: user.user_image,
-      position: userPosition,
-    });
   }
 
   return (
