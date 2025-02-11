@@ -98,6 +98,14 @@ const TopNavbar: React.FC = (): React.JSX.Element => {
                         Profile
                       </Link>
                     </li>
+                    <li>
+                      <Link
+                        href="/review"
+                        className="block px-4 py-2 text-sm text-white hover:text-red-500"
+                      >
+                        Feedback
+                      </Link>
+                    </li>
                   </ul>
                   <ul className="py-2" aria-labelledby="user-menu-button">
                     <li>
