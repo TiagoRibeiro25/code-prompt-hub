@@ -11,7 +11,7 @@ const FAQ: React.FC = (): React.JSX.Element => {
     {
       question: "Can I try it for free?",
       answer:
-        "Yes, you can start with a free account and upgrade later for more features.",
+        "Yes, all the features are available for free. Our goal is to help students improve their coding skills.",
     },
   ];
 
