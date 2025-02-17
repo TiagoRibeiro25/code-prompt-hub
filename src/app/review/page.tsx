@@ -1,4 +1,4 @@
-import WriteReview from "@/components/WriteReview";
+import WriteReview from "@/app/review/_components/WriteReview";
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
 import { getServerSession, Session } from "next-auth";

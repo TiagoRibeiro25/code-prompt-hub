@@ -1,4 +1,4 @@
-import WelcomeTitle from "@/components/WelcomeTitle";
+import WelcomeTitle from "@/app/dashboard/_components/WelcomeTitle";
 
 const DashboardPage: React.FC = async (): Promise<React.JSX.Element> => {
   return (

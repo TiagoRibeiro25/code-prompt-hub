@@ -1,8 +1,8 @@
-import FAQ from "@/components/FAQ";
-import Features from "@/components/Features";
-import Leaderboard from "@/components/Leaderboard";
+import FAQ from "@/app/_components/FAQ";
+import Features from "@/app/_components/Features";
+import Leaderboard from "@/app/_components/Leaderboard";
+import Testimonials from "@/app/_components/Testimonials";
 import OnlyUnauthorizedAllowed from "@/components/OnlyUnauthorizedAllowed";
-import Testimonials from "@/components/Testimonials";
 import Link from "next/link";
 import React from "react";
 import { Fade } from "react-awesome-reveal";
