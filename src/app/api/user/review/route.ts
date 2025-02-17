@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
+import { getUserIdOnServer } from "@/lib/session";
 import validateSchema from "@/lib/validateSchema";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -35,22 +36,11 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findFirst({
-      where: { email: session.user?.email as string },
-      select: {
-        id: true,
-        review: true,
-      },
-    });
-
-    if (!user) {
-      // This should never happen
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    const userId = await getUserIdOnServer(session);
 
     // Create/Update review
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userId },
       data: {
         review: requestBody.review,
       },

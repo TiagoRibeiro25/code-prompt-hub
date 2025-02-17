@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
+import { getUserIdOnServer } from "@/lib/session";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import React from "react";
@@ -32,22 +33,19 @@ const LeaderboardPage: React.FC = async (): Promise<React.JSX.Element> => {
     };
   });
 
-  let loggedUser: { id: string } | null = null;
+  let loggedUserId: string | null = null;
   if (session) {
-    loggedUser = await prisma.user.findUnique({
-      where: { email: session.user?.email as string },
-      select: { id: true },
-    });
+    loggedUserId = await getUserIdOnServer(session);
 
     // Check if the logged user is in the top 10
     const loggedUserPosition = leaderboard.findIndex(
-      (user) => user.id === loggedUser?.id
+      (user) => user.id === loggedUserId
     );
 
     // If he's not in the top 10, get his position and add him to the leaderboard
     if (loggedUserPosition === -1) {
       const user = await prisma.user.findFirst({
-        where: { email: session.user?.email as string },
+        where: { id: loggedUserId },
         select: {
           id: true,
           name: true,
@@ -61,10 +59,10 @@ const LeaderboardPage: React.FC = async (): Promise<React.JSX.Element> => {
         throw new Error("User not found");
       }
 
-      const userPosition = users.findIndex((u) => u.id === user.id) + 1;
+      const userPosition = users.findIndex((u) => u.id === loggedUserId) + 1;
 
       leaderboard.push({
-        id: user.id,
+        id: loggedUserId,
         name: user.name,
         experience: user.experience,
         user_image: user.user_image,
@@ -103,7 +101,7 @@ const LeaderboardPage: React.FC = async (): Promise<React.JSX.Element> => {
                 <tr
                   key={user.id}
                   className={` hover:bg-gray-800 transition-colors ${
-                    user.id === loggedUser?.id
+                    user.id === loggedUserId
                       ? "bg-gray-800 border-red-400 border"
                       : "border-gray-700"
                   }`}
