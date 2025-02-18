@@ -62,7 +62,7 @@ const TopNavbar: React.FC = (): React.JSX.Element => {
                     alt="user"
                     width={40}
                     height={40}
-                    className="rounded-full"
+                    className="rounded-full w-10 h-10 object-cover"
                   />
                 ) : (
                   <FaRegUserCircle className="text-4xl cursor-pointer text-red-500" />
