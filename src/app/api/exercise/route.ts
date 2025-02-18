@@ -37,8 +37,31 @@ export async function POST(req: NextRequest) {
 
   const userId = await getUserIdOnServer(session);
 
+  // Check if the user has more than 5 uncompleted exercises
+  const userUnfinishedExercises = await prisma.exercise.findMany({
+    where: {
+      user_id: userId,
+      score: { equals: null },
+    },
+    select: { id: true },
+  });
+
+  if (userUnfinishedExercises.length >= 5) {
+    return NextResponse.json(
+      {
+        error:
+          "You have too many unfinished exercises. Complete or delete them before creating a new one.",
+      },
+      { status: 400 }
+    );
+  }
+
   // TODO: Generate code from ChatGPT API
-  const code = "console.log('Hello, World!');";
+  // const code = "console.log('Hello, World!');";
+  const code = `function exercise(str) {
+  return str.split('').reverse().join('');
+  }
+  `;
   console.log("difficulty:", requestBody.difficulty);
   console.log("code:", code);
 
