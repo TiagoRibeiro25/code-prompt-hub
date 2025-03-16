@@ -1,3 +1,4 @@
+import { generateExercise } from "@/lib/ai";
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
 import { getUserIdOnServer } from "@/lib/session";
@@ -56,14 +57,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // TODO: Generate code from ChatGPT API
-  // const code = "console.log('Hello, World!');";
-  const code = `function exercise(str) {
-  return str.split('').reverse().join('');
-  }
-  `;
-  console.log("difficulty:", requestBody.difficulty);
-  console.log("code:", code);
+  const code = await generateExercise(requestBody.difficulty);
 
   // Create exercise
   const exercise = await prisma.exercise.create({
