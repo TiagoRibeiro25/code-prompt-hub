@@ -2,6 +2,7 @@
 
 import { formatDateTime } from "@/lib/date";
 import { Exercise } from "@prisma/client";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -15,6 +16,8 @@ const ExerciseAnswers: React.FC<Props> = ({ ex }): React.JSX.Element => {
   );
   const [exercise, setExercise] = useState<Exercise>(ex);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const handleSubmit = async (): Promise<void> => {
     setLoading(true);
@@ -49,6 +52,28 @@ const ExerciseAnswers: React.FC<Props> = ({ ex }): React.JSX.Element => {
     }
   };
 
+  const handleDelete = async (): Promise<void> => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(`/api/exercise/${exercise.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        toast.error(data.error, { theme: "dark" });
+      } else {
+        toast.success("Deleted successfully!", { theme: "dark" });
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }  
+
   return (
     <div className="lg:w-1/2 w-full md:px-16 px-4 py-8 lg:py-0">
       <div className="flex flex-row justify-between md:text-2xl text-lg text-gray-400">
@@ -70,13 +95,22 @@ const ExerciseAnswers: React.FC<Props> = ({ ex }): React.JSX.Element => {
         }}
       />
       {!isExerciseFinished && (
-        <button
-          className="w-full mt-8 py-2 bg-red-500 text-white font-bold rounded-md hover:bg-red-600 focus:outline-none disabled:opacity-50"
-          disabled={loading || !exercise.user_explanation}
-          onClick={handleSubmit}
-        >
-          {loading ? "Loading..." : "Submit"}
-        </button>
+        <div className="flex flex-row space-x-12">
+          <button
+            className="w-full mt-8 py-2 bg-green-500 text-white font-bold rounded-md hover:bg-green-600 focus:outline-none disabled:opacity-50"
+            disabled={loading || !exercise.user_explanation}
+            onClick={handleSubmit}
+          >
+            {loading ? "Loading..." : "Submit"}
+          </button>
+          <button
+            className="w-full mt-8 py-2 bg-red-500 text-white font-bold rounded-md hover:bg-red-600 focus:outline-none disabled:opacity-50"
+            disabled={loading}
+            onClick={handleDelete}
+          >
+            {loading ? "Loading..." : "Cancel"}
+          </button>
+        </div>
       )}
 
       <hr className="my-8 border border-gray-700" />

@@ -46,6 +46,7 @@ export async function PATCH(req: NextRequest) {
       where: { id: exerciseId },
     });
 
+    // Check if the exercise exists
     if (!exercise) {
       return NextResponse.json(
         { error: "Exercise not found" },
@@ -77,6 +78,54 @@ export async function PATCH(req: NextRequest) {
         review: reviewResult.review,
         score: reviewResult.score,
       },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.log("500 error:", error);
+
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const parts = req.nextUrl.pathname.split("/");
+    const exerciseId = parts[parts.length - 1];
+
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = await getUserIdOnServer(session);
+
+    const exercise = await prisma.exercise.findUnique({
+      where: { id: exerciseId },
+    });
+
+    // Check if the exercise exists
+    if (!exercise) {
+      return NextResponse.json(
+        { error: "Exercise not found" },
+        { status: 404 },
+      );
+    }
+
+    // Check if the exercise is from the user
+    if (exercise.user_id !== userId) {
+      return NextResponse.json(
+        { error: "You are not allowed to access this exercise" },
+        { status: 403 },
+      );
+    }
+
+    await prisma.exercise.delete({ where: { id: exerciseId } });
+
+    return NextResponse.json(
+      { message: "Exercise deleted successfully" },
       { status: 200 },
     );
   } catch (error) {
