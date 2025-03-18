@@ -17,7 +17,7 @@ const Exercise = async ({
   });
 
   if (!exercise) {
-    return <RedirectTo404 />
+    return <RedirectTo404 />;
   }
 
   return (
@@ -26,7 +26,7 @@ const Exercise = async ({
         className="lg:w-1/2 w-full lg:h-screen border border-red-500 rounded-md"
         code={exercise.code}
       />
-      <ExerciseAnswers exercise={exercise} />
+      <ExerciseAnswers ex={exercise} />
     </div>
   );
 };

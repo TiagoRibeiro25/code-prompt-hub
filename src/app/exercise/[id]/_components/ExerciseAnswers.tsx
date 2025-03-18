@@ -3,16 +3,51 @@
 import { formatDateTime } from "@/lib/date";
 import { Exercise } from "@prisma/client";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 type Props = {
-  exercise: Exercise;
+  ex: Exercise;
 };
 
-const ExerciseAnswers: React.FC<Props> = ({ exercise }): React.JSX.Element => {
-  const isExerciseFinished: boolean = !!exercise.ai_review;
-  const [userAnswer, setUserAnswer] = useState<string>("");
+const ExerciseAnswers: React.FC<Props> = ({ ex }): React.JSX.Element => {
+  const [isExerciseFinished, setIsExerciseFinished] = useState<boolean>(
+    !!ex.ai_review,
+  );
+  const [exercise, setExercise] = useState<Exercise>(ex);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  //TODO: Implement submit function
+  const handleSubmit = async (): Promise<void> => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(`/api/exercise/${exercise.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ answer: exercise.user_explanation }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error, { theme: "dark" });
+      } else {
+        toast.success("Submitted successfully!", { theme: "dark" });
+        setExercise((prev) => ({
+          ...prev,
+          ai_review: data.review,
+          score: data.score,
+          updatedAt: new Date(),
+        }));
+        setIsExerciseFinished(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="lg:w-1/2 w-full md:px-16 px-4 py-8 lg:py-0">
@@ -26,17 +61,21 @@ const ExerciseAnswers: React.FC<Props> = ({ exercise }): React.JSX.Element => {
       <textarea
         className="w-full h-72 mt-8 bg-gray-800 text-gray-400 p-4 rounded-md focus:outline-none focus:border border-red-500"
         readOnly={isExerciseFinished}
-        value={exercise.user_explanation || userAnswer}
+        value={exercise.user_explanation || ""}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-          return setUserAnswer(e.target.value);
+          return setExercise((prev) => ({
+            ...prev,
+            user_explanation: e.target.value,
+          }));
         }}
       />
       {!isExerciseFinished && (
         <button
-          className="w-full mt-8 py-2 bg-red-500 text-white font-bold rounded-md hover:bg-red-600 focus:outline-none"
-          disabled={isExerciseFinished}
+          className="w-full mt-8 py-2 bg-red-500 text-white font-bold rounded-md hover:bg-red-600 focus:outline-none disabled:opacity-50"
+          disabled={loading || !exercise.user_explanation}
+          onClick={handleSubmit}
         >
-          Submit
+          {loading ? "Loading..." : "Submit"}
         </button>
       )}
 
@@ -45,8 +84,8 @@ const ExerciseAnswers: React.FC<Props> = ({ exercise }): React.JSX.Element => {
       <h2 className="text-2xl font-bold mt-8 text-gray-300">Review by AI</h2>
       <textarea
         className="w-full h-72 mt-8 bg-gray-800 text-gray-400 p-4 rounded-md focus:outline-none focus:border border-red-500"
-        value={exercise.ai_review || ""}
         readOnly
+        value={exercise.ai_review || ""}
       />
 
       {isExerciseFinished && (

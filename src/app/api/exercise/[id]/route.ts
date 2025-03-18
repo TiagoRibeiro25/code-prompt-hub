@@ -66,6 +66,7 @@ export async function PATCH(req: NextRequest) {
     await prisma.exercise.update({
       where: { id: exerciseId },
       data: {
+        user_explanation: requestBody.answer,
         ai_review: reviewResult.review,
         score: reviewResult.score,
       },
