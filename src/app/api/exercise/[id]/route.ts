@@ -73,6 +73,14 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
+    // Add the score points (experience) to the user
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        experience: { increment: reviewResult.score },
+      },
+    });
+
     return NextResponse.json(
       {
         review: reviewResult.review,
